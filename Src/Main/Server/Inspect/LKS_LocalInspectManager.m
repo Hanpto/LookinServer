@@ -82,7 +82,8 @@
 
 - (void)_setupWindowIfNeeded {
     if (!self.inspectorWindow) {
-        self.inspectorWindow = [LKS_LocalInspectContainerWindow new];
+        LKS_LocalInspectManager *manager = [LKS_LocalInspectManager sharedInstance];
+        self.inspectorWindow = [manager contentWindow];
         self.inspectorWindow.windowLevel = UIWindowLevelAlert - 1;
         self.inspectorWindow.backgroundColor = [UIColor clearColor];
     }
@@ -100,6 +101,18 @@
     self.previousKeyWindow = [UIApplication sharedApplication].keyWindow;
     self.viewController.prevKeyWindow = self.previousKeyWindow;
     [self.inspectorWindow makeKeyAndVisible];
+}
+
+- (LKS_LocalInspectContainerWindow *)contentWindow {
+    if (!_inspectorWindow) {
+        if (@available(iOS 13.0, *)) {
+            UIWindowScene *windowScene = (UIWindowScene *)UIApplication.sharedApplication.connectedScenes.allObjects.firstObject;
+            _inspectorWindow = (LKS_LocalInspectContainerWindow *)[[UIWindow alloc] initWithWindowScene:windowScene];
+        } else {
+            _inspectorWindow = [LKS_LocalInspectContainerWindow new];
+        }
+    }
+    return _inspectorWindow;
 }
 
 - (void)_removeWindowIfNeeded {

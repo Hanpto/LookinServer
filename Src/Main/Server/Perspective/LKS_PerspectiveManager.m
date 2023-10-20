@@ -133,7 +133,8 @@
         [self.loadingView removeFromSuperview];
         self.loadingView = nil;
 
-        self.contentWindow = [LKS_PerspectiveContainerWindow new];
+        LKS_PerspectiveManager *manager = [LKS_PerspectiveManager sharedInstance];
+        self.contentWindow = [manager contentWindow];
         self.contentWindow.windowLevel = UIWindowLevelAlert - 2;
         self.contentWindow.backgroundColor = [UIColor clearColor];
 
@@ -145,6 +146,18 @@
 
         [self.viewController.closeButton addTarget:self action:@selector(_exit) forControlEvents:UIControlEventTouchUpInside];
     });
+}
+
+- (LKS_PerspectiveContainerWindow *)contentWindow {
+    if (!_contentWindow) {
+        if (@available(iOS 13.0, *)) {
+            UIWindowScene *windowScene = (UIWindowScene *)UIApplication.sharedApplication.connectedScenes.allObjects.firstObject;
+            _contentWindow = (LKS_PerspectiveContainerWindow *)[[UIWindow alloc] initWithWindowScene:windowScene];
+        } else {
+            _contentWindow = [LKS_PerspectiveContainerWindow new];
+        }
+    }
+    return _contentWindow;
 }
 
 - (void)_exit {
